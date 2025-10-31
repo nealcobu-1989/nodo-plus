@@ -47,9 +47,10 @@ export const authController = {
       });
 
       // Generar token
+      const jwtSecret = process.env.JWT_SECRET || 'default-secret-change-in-production';
       const token = jwt.sign(
         { userId: user.id, role: user.role },
-        process.env.JWT_SECRET!,
+        jwtSecret,
         { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
       );
 
@@ -88,9 +89,10 @@ export const authController = {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
+      const jwtSecret = process.env.JWT_SECRET || 'default-secret-change-in-production';
       const token = jwt.sign(
         { userId: user.id, role: user.role },
-        process.env.JWT_SECRET!,
+        jwtSecret,
         { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
       );
 
