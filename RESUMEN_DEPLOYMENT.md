@@ -13,15 +13,23 @@
 ### 3. **backend/package.json**
 - ✅ Movido `tsx` de `devDependencies` a `dependencies` para que esté disponible en producción
 
-### 4. **RENDER_CHECKLIST.md**
+### 4. **frontend/src/vite-env.d.ts** (NUEVO)
+- ✅ Creado archivo de declaraciones de tipos para `import.meta.env`
+- ✅ Define `ImportMetaEnv` con `VITE_API_URL` opcional
+- ✅ Resuelve error `Property 'env' does not exist on type 'ImportMeta'`
+
+### 5. **frontend/src/pages/admin/InstitutionDetail.tsx**
+- ✅ Eliminado import no utilizado `Building` de lucide-react
+
+### 6. **RENDER_CHECKLIST.md**
 - ✅ Actualizado Build Command para incluir migraciones y seed automáticamente
 - ✅ Eliminado PASO 4 (Shell) que requería acciones manuales
 
-### 5. **GUIA_RAPIDA_RENDER.md**
+### 7. **GUIA_RAPIDA_RENDER.md**
 - ✅ Actualizado Build Command para incluir migraciones y seed automáticamente
 - ✅ Eliminadas instrucciones de Shell
 
-### 6. **DESPLEGAR_RENDER.md**
+### 8. **DESPLEGAR_RENDER.md**
 - ✅ Actualizado Build Command para incluir migraciones y seed automáticamente
 - ✅ Eliminadas instrucciones de Shell
 
@@ -39,6 +47,20 @@ Este comando ahora:
 5. ✅ Ejecuta seed (`npm run db:seed`)
 
 **TODO automáticamente. SIN SHELL.**
+
+### Frontend:
+```bash
+npm install && npm run build
+```
+
+Frontend Build:
+1. ✅ Instala dependencias
+2. ✅ Compila TypeScript
+3. ✅ Genera build de producción
+
+**SIN CAMBIOS ADICIONALES necesarios.**
+
+---
 
 ## 📝 Pasos para ti
 

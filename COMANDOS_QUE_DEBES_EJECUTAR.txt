@@ -3,7 +3,7 @@ Abre Git Bash en C:\nodo-plus y ejecuta estos comandos:
 ========================================
 git add .
 ========================================
-git commit -m "Fix TypeScript build errors and automate migrations for Render"
+git commit -m "Fix TypeScript errors for both frontend and backend"
 ========================================
 git push origin main
 ========================================

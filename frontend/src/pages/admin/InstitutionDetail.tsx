@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { Building, Mail, MapPin, ArrowLeft, Calendar, CheckCircle, ExternalLink } from 'lucide-react'
+import { Mail, MapPin, ArrowLeft, Calendar, CheckCircle, ExternalLink } from 'lucide-react'
 import InitialLogo from '../../components/InitialLogo'
 
 interface Institution {
