@@ -3,9 +3,19 @@ Abre Git Bash en C:\nodo-plus y ejecuta estos comandos:
 ========================================
 git add .
 ========================================
-git commit -m "Fix TypeScript build errors for Render"
+git commit -m "Fix TypeScript build errors and automate migrations for Render"
 ========================================
 git push origin main
 ========================================
 
 ESO ES TODO.
+
+Ahora Render automáticamente:
+1. Instalará dependencias
+2. Generará Prisma Client
+3. Compilará TypeScript
+4. Ejecutará migraciones
+5. Ejecutará seed
+6. Iniciará el servidor
+
+TODO EN UN SOLO PASO (Build Command).

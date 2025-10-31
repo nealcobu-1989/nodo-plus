@@ -25,7 +25,7 @@
   - Branch: `main`
   - Root Directory: `backend` ⚠️
   - Runtime: `Node`
-  - Build Command: `npm install && npx prisma generate && npm run build`
+  - Build Command: `npm install && npx prisma generate && npm run build && npx prisma migrate deploy && npm run db:seed`
   - Start Command: `npm start`
 - [ ] Click "Advanced" → Agregar variables:
   - `DATABASE_URL` = (pegar URL de la BD)
@@ -34,17 +34,17 @@
   - `PORT` = 10000
   - `FRONTEND_URL` = *
 - [ ] Click "Create Web Service"
-- [ ] Esperar 5-10 minutos a que termine el build
+- [ ] Esperar 10-15 minutos a que termine el build y se ejecuten migraciones
 
 ---
 
-## PASO 4: Ejecutar Migraciones ✅ / ❌
+## PASO 4: Verificar Backend ✅ / ❌
 
-- [ ] Abrir `nodo-plus-backend` en Render
-- [ ] Click "Shell"
-- [ ] Ejecutar: `npx prisma migrate deploy`
-- [ ] Ejecutar: `npx tsx prisma/seed.ts`
-- [ ] Verificar que no haya errores
+- [ ] Abrir logs del `nodo-plus-backend` en Render
+- [ ] Verificar que dice: "🌱 Seeding database..."
+- [ ] Verificar que dice: "✅ Admin user created"
+- [ ] Verificar que dice: "🎉 Seeding completed!"
+- [ ] Verificar que dice: "🚀 Server running on port 10000"
 
 ---
 

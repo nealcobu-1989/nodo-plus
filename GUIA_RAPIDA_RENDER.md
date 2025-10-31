@@ -59,7 +59,7 @@ git push -u origin main
    - **Branch:** `main`
    - **Root Directory:** `backend` ⚠️ MUY IMPORTANTE
    - **Runtime:** `Node`
-   - **Build Command:** `npm install && npx prisma generate && npm run build`
+   - **Build Command:** `npm install && npx prisma generate && npm run build && npx prisma migrate deploy && npm run db:seed`
    - **Start Command:** `npm start`
 
 #### Variables de Entorno:
@@ -77,17 +77,13 @@ FRONTEND_URL=*
 
 ---
 
-### 4️⃣ **Ejecutar Migraciones**
+### 4️⃣ **Verificar Backend**
 
-Una vez que el backend esté levantado (5-10 min):
+Una vez que el build esté completo (10-15 min):
 
-1. Abre `nodo-plus-backend` en Render
-2. Click "Shell"
-3. Ejecuta:
-```bash
-npx prisma migrate deploy
-npx tsx prisma/seed.ts
-```
+1. Abre los logs del `nodo-plus-backend` en Render
+2. Verifica que se ejecutaron migraciones
+3. Verifica que se ejecutó el seed (debe decir: "🎉 Seeding completed!")
 
 ---
 

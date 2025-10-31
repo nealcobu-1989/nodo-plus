@@ -103,7 +103,7 @@ postgresql://usuario:password@dpg-xxxxx-a.oregon-postgres.render.com/nodo_plus
    - **Branch:** `main`
    - **Root Directory:** `backend` ⚠️ IMPORTANTE
    - **Runtime:** `Node`
-   - **Build Command:** `npm install && npx prisma generate && npm run build`
+   - **Build Command:** `npm install && npx prisma generate && npm run build && npx prisma migrate deploy && npm run db:seed`
    - **Start Command:** `npm start`
 
 ### 3.4 Variables de Entorno del Backend
@@ -140,20 +140,18 @@ Click **"Create Web Service"**. Render comenzará a construir tu backend.
 
 ---
 
-## PASO 4: Preparar Base de Datos en Render
+## PASO 4: Verificar Backend
 
-### 4.1 Ejecutar Migraciones
-
-Una vez que el backend esté levantado (toma ~5-10 minutos), necesitas correr las migraciones:
+Una vez que el build esté completo (toma ~10-15 minutos):
 
 1. Ve al dashboard de Render
 2. Abre tu servicio `nodo-plus-backend`
-3. Click en **"Shell"**
-4. Ejecuta:
-```bash
-npm run db:migrate
-npm run db:seed
-```
+3. Click en **"Logs"**
+4. Verifica que ves:
+   - "🌱 Seeding database..."
+   - "✅ Admin user created"
+   - "🎉 Seeding completed!"
+   - "🚀 Server running on port 10000"
 
 ---
 
