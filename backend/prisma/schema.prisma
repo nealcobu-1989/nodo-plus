@@ -1,0 +1,231 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EDTECH
+  IE
+  CONSULTANT
+}
+
+enum ProfileStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+enum TrafficLightColor {
+  RED
+  YELLOW
+  GREEN
+}
+
+// Usuarios del sistema
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?  // Opcional para usuarios OAuth
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // OAuth
+  providerId String?  // ID único del proveedor (Google/Microsoft)
+  provider   String?  // 'google' | 'microsoft' | null
+  name       String?  // Nombre del usuario (de OAuth)
+  picture    String?  // URL de foto de perfil (de OAuth)
+
+  // Relaciones
+  edtechCompany     EdTechCompany?
+  institution       Institution?
+  consultantProfile ConsultantProfile?
+
+  @@index([providerId, provider])
+  @@map("users")
+}
+
+// Empresas EdTech
+model EdTechCompany {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  name        String
+  country     String
+  contactEmail String
+  website     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  solutions Solution[]
+
+  @@map("edtech_companies")
+}
+
+// Soluciones EdTech
+model Solution {
+  id              String        @id @default(cuid())
+  edtechCompanyId String
+  name            String
+  status          ProfileStatus @default(DRAFT)
+  
+  // Ficha técnica - datos básicos
+  description     String?       @db.Text
+  logoUrl         String?
+  
+  // Etiquetas y filtros
+  levels          String[]      // Niveles educativos
+  areas           String[]      // Áreas temáticas
+  productTypes    String[]      // Tipos de producto
+  contexts        String[]      // Contextos (conectividad/infra)
+  devices         String[]      // Dispositivos
+  businessModels  String[]      // Modelos de negocio
+  security        String[]      // Prácticas de seguridad
+  adaptability    String[]      // Funciones de adaptabilidad
+  
+  // Precio estimado
+  priceRange      String?       // Ej: "Gratis", "$100-500", "$500-1000", etc.
+  
+  // Semáforos (calculados después de aprobación) - 6 criterios
+  pedagogicalScore      Int?
+  adaptabilityScore     Int?
+  impactScore           Int?
+  organizationalScore   Int?
+  technicalQualityScore Int?
+  affordabilityScore    Int?
+  pedagogicalColor      TrafficLightColor?
+  adaptabilityColor     TrafficLightColor?
+  impactColor           TrafficLightColor?
+  organizationalColor   TrafficLightColor?
+  technicalQualityColor TrafficLightColor?
+  affordabilityColor    TrafficLightColor?
+  
+  // URL del sitio web
+  websiteUrl            String?
+  
+  // Datos del cuestionario (JSON para flexibilidad)
+  questionnaireData Json @default("{}")
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  approvedAt      DateTime?
+  approvedBy      String?
+  
+  // Relaciones
+  edtechCompany EdTechCompany @relation(fields: [edtechCompanyId], references: [id], onDelete: Cascade)
+  evidences     Evidence[]
+  matches       IEMatch[]     // Matching con IEs
+
+  @@map("solutions")
+}
+
+// Evidencias/Documentos
+model Evidence {
+  id         String   @id @default(cuid())
+  solutionId String
+  type       String   // "ToC", "MERL", "report", "demo", "screenshot"
+  title      String
+  url        String?
+  fileUrl    String?
+  createdAt  DateTime @default(now())
+
+  solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  @@map("evidences")
+}
+
+// Instituciones Educativas
+model Institution {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  name        String
+  type        String   // pública/privada
+  location    String   // Departamento/Municipio
+  rural       Boolean  @default(false)
+  status      ProfileStatus @default(DRAFT)
+  
+  // Datos de caracterización (JSON)
+  characterizationData Json @default("{}")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  approvedAt  DateTime?
+  
+  // Relaciones
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matches IEMatch[]
+
+  @@map("institutions")
+}
+
+// Matching entre IEs y Soluciones
+model IEMatch {
+  id             String   @id @default(cuid())
+  institutionId  String
+  solutionId     String
+  score          Float    // Score de relevancia
+  reason         String?  @db.Text
+  createdAt      DateTime @default(now())
+
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  solution    Solution    @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  @@unique([institutionId, solutionId])
+  @@map("ie_matches")
+}
+
+// Perfil de consultante
+model ConsultantProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  name      String
+  organization String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("consultant_profiles")
+}
+
+// Catálogos configurables por Admin
+model Catalog {
+  id        String   @id @default(cuid())
+  type      String   // "level", "area", "productType", etc.
+  label     String
+  value     String   @unique
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([type, value])
+  @@map("catalogs")
+}
+
+// Reglas de cálculo de semáforos
+model TrafficLightRule {
+  id           String  @id @default(cuid())
+  axis         String  // "pedagogical", "adaptability", "impact", "organizational"
+  thresholdRed Int     // Umbral para rojo (0-100)
+  thresholdYellow Int  // Umbral para amarillo (0-100)
+  weights      Json    // Ponderaciones por pregunta
+  active       Boolean @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([axis, active])
+  @@map("traffic_light_rules")
+}
+

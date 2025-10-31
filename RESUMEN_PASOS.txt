@@ -1,0 +1,60 @@
+╔═══════════════════════════════════════════════════════════════╗
+║           COMO CORRER NODO+ - RESUMEN RAPIDO                  ║
+╚═══════════════════════════════════════════════════════════════╝
+
+PROBLEMA ACTUAL:
+----------------
+Tu archivo backend\.env tiene una contraseña incorrecta de PostgreSQL.
+
+SOLUCION EN 3 PASOS:
+--------------------
+
+1. EDITAR PASSWORD EN .env
+   -----------------------
+   Abre: backend\.env
+   Cambia esta linea:
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nodo_plus..."
+                                                              ^^^^^^^^
+                                              Cambia "postgres" por tu password real
+   
+   Guarda el archivo.
+
+2. CREAR BASE DE DATOS
+   --------------------
+   Abre: SQL Shell (psql) desde el menu de inicio
+   Ejecuta: CREATE DATABASE nodo_plus;
+   
+   O si prefieres: createdb -U postgres nodo_plus
+
+3. CONFIGURAR Y CORRER
+   --------------------
+   Terminal 1: cd backend && npm run db:migrate && npm run db:seed
+   Terminal 2: cd backend && npm run dev
+   Terminal 3: cd frontend && npm run dev
+   
+   Abre navegador: http://localhost:3000
+   
+   Login: admin@nodo-plus.com / admin123
+
+═══════════════════════════════════════════════════════════════
+
+SI NO RECUERDAS TU PASSWORD:
+-----------------------------
+1. Abre SQL Shell (psql) desde el menu de inicio
+2. Presiona Enter para todas las opciones
+3. Deja password vacio o prueba "postgres"
+4. Una vez conectado, escribe:
+   ALTER USER postgres WITH PASSWORD 'postgres';
+   
+Ahora usa "postgres" como contraseña en .env
+
+═══════════════════════════════════════════════════════════════
+
+ARCHIVOS DE AYUDA:
+------------------
+- INSTRUCCIONES_COMPLETAS.md  (Lee esto si tienes dudas)
+- PROBLEMA_Y_SOLUCION.md      (Soluciones de problemas)
+- COMO_CORRER.md              (Instrucciones alternativas)
+
+═══════════════════════════════════════════════════════════════
+
