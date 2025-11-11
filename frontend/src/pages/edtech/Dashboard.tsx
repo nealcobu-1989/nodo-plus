@@ -8,6 +8,7 @@ export default function EdTechDashboard() {
   return (
     <Routes>
       <Route path="onboarding" element={<Onboarding />} />
+      <Route path="profile" element={<Questionnaire />} />
       <Route path="solutions" element={<SolutionsList />} />
       <Route path="solutions/:id/questionnaire" element={<Questionnaire />} />
       <Route path="solutions/:id/preview" element={<SolutionPreview />} />

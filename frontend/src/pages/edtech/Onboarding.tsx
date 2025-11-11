@@ -20,7 +20,11 @@ export default function Onboarding() {
     try {
       // TODO: Crear solución inicial
       const response = await axios.post('/api/edtech/solutions', formData)
-      navigate(`/edtech/solutions/${response.data.id}/questionnaire`)
+      if (response?.data?.id) {
+        navigate('/edtech/profile', { replace: true })
+      } else {
+        navigate('/edtech/profile')
+      }
     } catch (error) {
       console.error('Error creating solution:', error)
     } finally {

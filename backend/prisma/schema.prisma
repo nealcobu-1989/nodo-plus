@@ -31,6 +31,12 @@ enum TrafficLightColor {
   GREEN
 }
 
+enum ProfileSubmissionStatus {
+  IN_PROGRESS
+  SUBMITTED
+  ARCHIVED
+}
+
 // Usuarios del sistema
 model User {
   id        String   @id @default(cuid())
@@ -50,6 +56,7 @@ model User {
   edtechCompany     EdTechCompany?
   institution       Institution?
   consultantProfile ConsultantProfile?
+  profileSubmissions ProfileSubmission[]
 
   @@index([providerId, provider])
   @@map("users")
@@ -69,6 +76,7 @@ model EdTechCompany {
   // Relaciones
   user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   solutions Solution[]
+  profileSubmissions ProfileSubmission[]
 
   @@map("edtech_companies")
 }
@@ -126,6 +134,7 @@ model Solution {
   edtechCompany EdTechCompany @relation(fields: [edtechCompanyId], references: [id], onDelete: Cascade)
   evidences     Evidence[]
   matches       IEMatch[]     // Matching con IEs
+  profileSubmissions ProfileSubmission[]
 
   @@map("solutions")
 }
@@ -197,6 +206,49 @@ model ConsultantProfile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("consultant_profiles")
+}
+
+model ProfileSubmission {
+  id              String                    @id @default(cuid())
+  userId          String?
+  edtechCompanyId String?
+  solutionId      String?
+  status          ProfileSubmissionStatus   @default(IN_PROGRESS)
+  answers         Json                      @default("{}")
+  summarySnapshot Json                      @default("{}")
+  summaryText     String?                   @db.Text
+  consentData     Json?
+  sectionProgress Json?
+  submittedAt     DateTime?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+
+  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  edtechCompany EdTechCompany? @relation(fields: [edtechCompanyId], references: [id], onDelete: SetNull)
+  solution      Solution?      @relation(fields: [solutionId], references: [id], onDelete: SetNull)
+  attachments   ProfileAttachment[]
+
+  @@index([userId])
+  @@index([edtechCompanyId])
+  @@index([solutionId])
+  @@map("profile_submissions")
+}
+
+model ProfileAttachment {
+  id              String   @id @default(cuid())
+  submissionId    String
+  questionId      String
+  filename        String
+  fileUrl         String
+  contentType     String?
+  sizeBytes       Int?
+  storageProvider String? // e.g. "s3", "local"
+  uploadedAt      DateTime @default(now())
+
+  submission ProfileSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId, questionId])
+  @@map("profile_attachments")
 }
 
 // Catálogos configurables por Admin

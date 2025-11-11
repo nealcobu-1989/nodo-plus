@@ -5,6 +5,7 @@ import { authRoutes } from './routes/auth.routes';
 import { edtechRoutes } from './routes/edtech.routes';
 import { adminRoutes } from './routes/admin.routes';
 import { catalogRoutes } from './routes/catalog.routes';
+import { profileSubmissionRoutes } from './routes/profile.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -25,6 +26,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/edtech', edtechRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/catalog', catalogRoutes);
+app.use('/api/profile-submissions', profileSubmissionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -35,7 +35,7 @@ export default function Landing() {
               📊 Ver Instituciones Educativas Registradas
             </Link>
             <Link
-              to="/edtech/onboarding"
+              to="/edtech/profile"
               className="px-8 py-4 bg-white text-primary-700 border-2 border-primary-600 rounded-lg hover:bg-primary-50 transition-all font-semibold text-lg"
             >
               Soy EdTech
@@ -60,7 +60,7 @@ export default function Landing() {
               Perfila tu solución tecnológica y forma parte de nuestro catálogo de innovaciones educativas
             </p>
             <Link
-              to="/edtech/onboarding"
+              to="/edtech/profile"
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
             >
               Comenzar perfilamiento
@@ -164,7 +164,7 @@ export default function Landing() {
             Únete a nuestra comunidad y transforma la educación con tecnología
           </p>
           <Link
-            to="/edtech/onboarding"
+            to="/edtech/profile"
             className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-navy-700 to-primary-700 text-white rounded-lg hover:from-navy-800 hover:to-primary-800 transition-all font-semibold text-lg shadow-lg"
           >
             Comenzar ahora
