@@ -68,9 +68,21 @@ const steps = [
     title: section.title,
   })),
   { id: 'summary', title: 'Resumen' },
+  { id: 'submitted', title: 'Formulario Enviado' },
 ]
 
-const FORM_STEPS_COUNT = steps.length - 1 // Exclude summary for progress
+const FORM_STEPS_COUNT = steps.length - 2 // Exclude summary and submitted for progress
+
+function getGlobalQuestionNumber(sectionId: string, questionIndex: number): number {
+  let globalNumber = 0
+  for (const section of profileSurvey.sections) {
+    if (section.id === sectionId) {
+      return globalNumber + questionIndex + 1
+    }
+    globalNumber += section.questions.length
+  }
+  return globalNumber + questionIndex + 1
+}
 
 const REQUIRED_STATUS = 'SUBMITTED'
 
@@ -301,6 +313,7 @@ export default function Questionnaire() {
   const [serverError, setServerError] = useState<string | null>(null)
   const [attachments, setAttachments] = useState<AttachmentRecord[]>([])
   const [uploadingQuestionId, setUploadingQuestionId] = useState<string | null>(null)
+  const [certificationChecked, setCertificationChecked] = useState(false)
 
   const progressPercent = (() => {
     const effectiveIndex = Math.min(currentStepIndex, FORM_STEPS_COUNT)
@@ -362,7 +375,7 @@ export default function Questionnaire() {
           setSubmissionId(data.id)
           if (data.status === REQUIRED_STATUS) {
             setSubmitSuccess(true)
-            setCurrentStepIndex(steps.length - 1)
+            setCurrentStepIndex(steps.length - 1) // Go to "submitted" step
           } else {
             const resumeIndex = determineResumeStep(data.sectionProgress ?? {})
             setCurrentStepIndex(resumeIndex)
@@ -925,10 +938,17 @@ export default function Questionnaire() {
   }
 
   async function handleSubmit() {
+    if (!certificationChecked) {
+      setErrors((prev) => ({
+        ...prev,
+        certification: 'Debes certificar que las respuestas son fieles a la realidad para enviar el formulario.',
+      }))
+      return
+    }
     try {
       await saveSubmission({ status: REQUIRED_STATUS })
       setSubmitSuccess(true)
-      setCurrentStepIndex(steps.length - 1)
+      setCurrentStepIndex(steps.length - 1) // Go to "submitted" step
     } catch {
       // Error message handled in saveSubmission
     }
@@ -990,13 +1010,12 @@ export default function Questionnaire() {
 
     const questionAttachments = attachments.filter((attachment) => attachment.questionId === question.id)
 
+    const globalQuestionNumber = getGlobalQuestionNumber(section.id, index)
     const label = (
       <div className="flex items-start justify-between gap-4">
         <div>
-          <span className="text-sm text-primary-600 font-semibold">
-            {`${section.title.split(':')[0]}-${index + 1}`}
-          </span>
-          <h3 className="text-lg font-semibold text-navy-800 mt-1">
+          <h3 className="text-lg font-semibold text-navy-800">
+            <span className="text-primary-600 font-semibold">{globalQuestionNumber}.</span>{' '}
             {question.prompt}
             {question.required && <span className="text-primary-600 font-semibold ml-1">*</span>}
           </h3>
@@ -1238,10 +1257,10 @@ export default function Questionnaire() {
               </div>
               <div>
                 <h2 className="text-2xl font-semibold text-navy-800">
-                  Revisa tus respuestas antes de enviar
+                  Verifica tu información antes de enviar
                 </h2>
                 <p className="text-gray-600 mt-2">
-                  Asegúrate de que toda la información sea correcta. Puedes regresar a secciones anteriores para editar cualquier respuesta.
+                  Revisa todas tus respuestas a continuación. Asegúrate de que toda la información sea correcta y fiel a la realidad. Puedes regresar a secciones anteriores para editar cualquier respuesta antes de enviar.
                 </p>
               </div>
             </div>
@@ -1333,6 +1352,95 @@ export default function Questionnaire() {
             </div>
           </div>
         ))}
+
+        {!submitSuccess && (
+          <div className="bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
+            <label
+              className={`flex items-start gap-3 p-4 rounded-xl border transition-colors ${
+                errors.certification
+                  ? 'border-red-400 bg-red-50/50'
+                  : 'border-gray-200 hover:border-primary-400'
+              }`}
+            >
+              <input
+                type="checkbox"
+                className="mt-1 h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                checked={certificationChecked}
+                onChange={(event) => {
+                  setCertificationChecked(event.target.checked)
+                  if (errors.certification) {
+                    setErrors((prev) => {
+                      const next = { ...prev }
+                      delete next.certification
+                      return next
+                    })
+                  }
+                }}
+              />
+              <div className="flex-1">
+                <span className="text-base text-gray-800">
+                  Certifico que todas las respuestas son fieles a la realidad y dispongo de evidencia para sustentarlas cuando sea requerida.
+                </span>
+                {errors.certification && (
+                  <p className="text-sm text-red-600 mt-1">{errors.certification}</p>
+                )}
+              </div>
+            </label>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  function renderSubmittedStep() {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
+          <div className="flex items-start gap-4">
+            <div className="rounded-full bg-green-100 p-2 text-green-600">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-semibold text-green-700">
+                Formulario de perfilamiento enviado
+              </h2>
+              <p className="text-gray-600 mt-2">
+                Tu formulario de perfilamiento ha sido enviado exitosamente. Puedes ver el resumen completo o modificarlo si es necesario.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <button
+            type="button"
+            onClick={() => {
+              setSubmitSuccess(true) // Ensure success message is shown
+              setCurrentStepIndex(steps.length - 2) // Go to summary step
+            }}
+            className="bg-white shadow-lg rounded-2xl p-8 border border-gray-100 hover:border-primary-400 transition-colors text-left"
+          >
+            <h3 className="text-xl font-semibold text-navy-800 mb-2">Ver formulario diligenciado</h3>
+            <p className="text-gray-600">
+              Revisa todas las respuestas que enviaste en el formulario de perfilamiento.
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setSubmitSuccess(false) // Allow modifications
+              setCertificationChecked(false) // Reset certification checkbox
+              setCurrentStepIndex(0) // Go to intro step
+            }}
+            className="bg-white shadow-lg rounded-2xl p-8 border border-gray-100 hover:border-primary-400 transition-colors text-left"
+          >
+            <h3 className="text-xl font-semibold text-navy-800 mb-2">Modificar formulario</h3>
+            <p className="text-gray-600">
+              Realiza cambios en tu formulario. Tus respuestas anteriores se mantendrán y podrás editarlas.
+            </p>
+          </button>
+        </div>
       </div>
     )
   }
@@ -1392,9 +1500,11 @@ export default function Questionnaire() {
       )}
 
       {currentStep.id === 'intro' && renderConsentStep()}
-      {currentStep.id !== 'intro' && currentStep.id !== 'summary' && currentSection && renderSection(currentSection)}
+      {currentStep.id !== 'intro' && currentStep.id !== 'summary' && currentStep.id !== 'submitted' && currentSection && renderSection(currentSection)}
       {currentStep.id === 'summary' && renderSummary()}
+      {currentStep.id === 'submitted' && renderSubmittedStep()}
 
+      {currentStep.id !== 'submitted' && (
       <footer className="flex flex-col sm:flex-row gap-4 justify-between items-center pt-4 border-t border-gray-100">
         <button
           type="button"
@@ -1425,7 +1535,7 @@ export default function Questionnaire() {
               className="inline-flex items-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 px-6 py-3 text-sm font-semibold text-white transition-colors disabled:bg-gray-300 disabled:text-gray-500"
             >
               <CheckCircle2 className="h-5 w-5" />
-              {submitSuccess ? 'Perfil enviado' : 'Enviar perfilamiento'}
+              {submitSuccess ? 'Encuesta enviada' : 'Enviar encuesta'}
             </button>
           ) : (
             <button
@@ -1440,6 +1550,7 @@ export default function Questionnaire() {
           )}
         </div>
       </footer>
+      )}
     </div>
   )
 }

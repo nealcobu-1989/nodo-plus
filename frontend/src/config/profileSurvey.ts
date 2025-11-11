@@ -118,7 +118,7 @@ export const profileSurvey: ProfileSurvey = {
           prompt: 'Descripción de la solución / Propuesta de valor',
           type: 'short_text',
           required: true,
-          wordLimit: 25,
+          wordLimit: 50,
         },
         {
           id: 's1_q4',
@@ -739,7 +739,6 @@ export const profileSurvey: ProfileSurvey = {
           type: 'multi_choice',
           required: true,
           options: [
-            { value: 'progress_tracking', label: 'Seguimiento de progreso / logros' },
             { value: 'reinforcement', label: 'Mensajes, sonidos de refuerzo o retos graduados' },
             { value: 'choice', label: 'Elección de rutas o recursos' },
             { value: 'none', label: 'No incluye elementos motivacionales' },
@@ -764,13 +763,6 @@ export const profileSurvey: ProfileSurvey = {
       id: 'section_5',
       title: 'Adaptabilidad',
       questions: [
-        {
-          id: 's5_q1',
-          prompt: '¿Ha sido probada la solución en contextos geográficos específicos?',
-          type: 'long_text',
-          required: true,
-          wordLimit: 100,
-        },
         {
           id: 's5_q2a',
           prompt:
