@@ -28,11 +28,11 @@ export default function Landing() {
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
-              to="/admin/institutions"
+              to="/edtech/profile"
               className="px-6 py-4 bg-yellow-100 text-yellow-800 border-2 border-yellow-600 rounded-lg hover:bg-yellow-200 transition-all font-semibold text-base flex items-center gap-2"
-              title="Botón temporal - Ver instituciones educativas"
+              title="Explorar formulario de perfilamiento para pruebas"
             >
-              📊 Ver Instituciones Educativas Registradas
+              🧪 Test Herramienta de Perfilamiento de EdTechs
             </Link>
             <Link
               to="/edtech/profile"
