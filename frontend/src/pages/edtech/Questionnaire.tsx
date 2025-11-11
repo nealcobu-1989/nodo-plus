@@ -380,6 +380,27 @@ export default function Questionnaire() {
           setAttachments([])
         }
       } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          try {
+            const creation = await axios.post('/api/profile-submissions', {
+              consentData: initialConsentState(),
+              answers: {},
+              sectionProgress: {},
+              summarySnapshot: [],
+              summaryText: '',
+            })
+            setSubmissionId(creation.data.id)
+            setAnswers({})
+            setAttachments([])
+            setSectionProgress({})
+            setConsent(initialConsentState())
+            return
+          } catch (creationError) {
+            console.error('Error creating profile submission after 404:', creationError)
+            setServerError('No se pudo iniciar el formulario. Inténtalo nuevamente.')
+            return
+          }
+        }
         console.error('Error loading profile submission', error)
         setServerError('No se pudo cargar el formulario. Inténtalo de nuevo más tarde.')
       } finally {
