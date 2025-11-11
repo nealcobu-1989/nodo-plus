@@ -901,6 +901,26 @@ async function main() {
   }
   console.log(`✅ Created ${institutionsData.length} educational institutions`)
 
+  // Crear usuarios de prueba (solo acceso EDTECH)
+  const testerPassword = await bcrypt.hash('pass', 10)
+  const testerCount = 10
+  for (let index = 1; index <= testerCount; index += 1) {
+    const email = `tester${index}@nodo-plus.com`
+    await prisma.user.upsert({
+      where: { email },
+      update: {
+        password: testerPassword,
+        role: 'EDTECH',
+      },
+      create: {
+        email,
+        password: testerPassword,
+        role: 'EDTECH',
+      },
+    })
+  }
+  console.log(`✅ Created ${testerCount} tester users (role EDTECH, password "pass")`)
+
   console.log('🎉 Seeding completed!')
 }
 

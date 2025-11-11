@@ -411,6 +411,15 @@ export default function Questionnaire() {
     loadSubmission()
   }, [])
 
+  useEffect(() => {
+    if (!loading) {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      })
+    }
+  }, [currentStepIndex, loading])
+
   function determineResumeStep(progress: SectionProgressState): number {
     for (let index = 0; index < steps.length - 1; index += 1) {
       const step = steps[index]
@@ -564,6 +573,16 @@ export default function Questionnaire() {
         values.push(option.value)
       }
 
+      const hasNone = values.includes('none')
+      if (hasNone && values.length > 1) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [question.id]: 'No puedes seleccionar "Ninguno" junto con otras opciones.',
+        }))
+      } else {
+        clearError(question.id)
+      }
+
       const next: MultiChoiceAnswer = {
         kind: 'multi',
         values,
@@ -575,7 +594,6 @@ export default function Questionnaire() {
         [question.id]: next,
       })
 
-      clearError(question.id)
       return updated
     })
   }
@@ -593,19 +611,32 @@ export default function Questionnaire() {
         kind: 'multi',
         values: ['other'],
       }
-      return {
-        ...prev,
-        [question.id]: {
-          ...previous,
-          kind: 'multi',
-          values: previous.values.includes('other')
-            ? previous.values
-            : [...previous.values, 'other'],
-          otherText: text,
-        },
+      const nextValues = previous.values.includes('other')
+        ? previous.values
+        : [...previous.values, 'other']
+      const updatedAnswer: MultiChoiceAnswer = {
+        ...previous,
+        kind: 'multi',
+        values: nextValues,
+        otherText: text,
       }
+      const updatedAnswers = {
+        ...prev,
+        [question.id]: updatedAnswer,
+      }
+
+      const selectionsExcludingOther = updatedAnswer.values.filter((value) => value !== 'other')
+      if (selectionsExcludingOther.includes('none') && selectionsExcludingOther.length > 1) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [question.id]: 'No puedes seleccionar "Ninguno" junto con otras opciones.',
+        }))
+      } else {
+        clearError(question.id)
+      }
+
+      return updatedAnswers
     })
-    clearError(question.id)
   }
 
   async function handleFileChange(question: Question, files: FileList | null) {
@@ -780,11 +811,12 @@ export default function Questionnaire() {
           if (question.required && !value.trim()) {
             sectionErrors[question.id] = 'Este campo es obligatorio.'
           } else if (value.trim()) {
+            const trimmed = value.trim()
+            const hasProtocol = /^[a-zA-Z][\w+.-]*:/.test(trimmed)
+            const candidate = hasProtocol ? trimmed : `https://${trimmed}`
             try {
-              const url = new URL(value)
-              if (!url.protocol.startsWith('http')) {
-                throw new Error()
-              }
+              // eslint-disable-next-line no-new
+              new URL(candidate)
             } catch {
               sectionErrors[question.id] = 'Ingresa una URL válida.'
             }
@@ -809,6 +841,8 @@ export default function Questionnaire() {
           const selectionCount = multi?.values?.length ?? 0
           if (question.required && selectionCount === 0) {
             sectionErrors[question.id] = 'Selecciona al menos una opción.'
+          } else if (multi && multi.values.includes('none') && multi.values.length > 1) {
+            sectionErrors[question.id] = 'No puedes seleccionar "Ninguno" junto con otras opciones.'
           } else if (
             multi?.values.includes('other') &&
             question.options.some((option) => option.value === 'other' && option.allowFreeText) &&
@@ -1008,11 +1042,11 @@ export default function Questionnaire() {
 
         {question.type === 'url' ? (
           <input
-            type="url"
+            type="text"
             className={`${inputClass} mt-4`}
             value={(answer as UrlAnswer | undefined)?.value ?? ''}
             onChange={(event) => handleTextChange(question, event.target.value)}
-            placeholder="https://tu-sitio-web.com"
+            placeholder="tu-sitio-web.com o https://tu-sitio-web.com"
           />
         ) : null}
 
