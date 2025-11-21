@@ -1296,7 +1296,6 @@ export default function Questionnaire() {
                   {renderQuestion(section, mainQuestion, item.startIndex)}
                   <div className="ml-8 space-y-4 border-l-2 border-primary-300 pl-6">
                     {subQuestions.map((subQ, subIndex) => {
-                      const subOriginalIndex = section.questions.findIndex((q) => q.id === subQ.id)
                       const subQuestionLetter = String.fromCharCode(97 + subIndex) // a, b, c, etc.
                       return renderQuestion(section, subQ, item.startIndex, true, subQuestionLetter)
                     })}
