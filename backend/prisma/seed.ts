@@ -19,6 +19,31 @@ async function main() {
   })
   console.log('✅ Admin user created:', admin.email)
 
+  // Crear cuentas de administradores adicionales
+  const adminPassword2025 = await bcrypt.hash('NogalesPlus2025', 10)
+  const adminEmails = [
+    'aceron@nogalesplus.com',
+    'cchild@nogalesplus.com',
+    'lmoreno@nogalesplus.com',
+    'acontreras@nogales.edu.co'
+  ]
+
+  for (const email of adminEmails) {
+    const adminUser = await prisma.user.upsert({
+      where: { email },
+      update: {
+        password: adminPassword2025,
+        role: 'ADMIN'
+      },
+      create: {
+        email,
+        password: adminPassword2025,
+        role: 'ADMIN'
+      }
+    })
+    console.log('✅ Admin user created:', adminUser.email)
+  }
+
   // Crear catálogos iniciales
   const catalogs = [
     // Niveles educativos

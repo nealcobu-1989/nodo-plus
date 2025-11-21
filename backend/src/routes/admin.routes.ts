@@ -49,3 +49,9 @@ adminRoutes.put('/consultants/:id/deactivate', adminController.deactivateConsult
 adminRoutes.get('/institutions', adminController.getInstitutions);
 adminRoutes.get('/institutions/:id', adminController.getInstitution);
 
+// Gestión de Profile Submissions
+adminRoutes.get('/submissions', adminController.getAllSubmissions);
+adminRoutes.get('/submissions/:id', adminController.getSubmission);
+adminRoutes.put('/submissions/:id', adminController.updateSubmission);
+adminRoutes.delete('/submissions/:id', adminController.archiveSubmission);
+

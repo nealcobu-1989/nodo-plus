@@ -39,6 +39,12 @@ export default function Landing() {
             >
               Test Radiografía de Colegios
             </Link>
+            <Link
+              to="/login"
+              className="w-full sm:w-auto px-8 py-4 bg-red-50 text-red-700 border-2 border-red-400 rounded-lg hover:bg-red-100 transition-all font-semibold text-lg"
+            >
+              Log In Admin
+            </Link>
           </div>
         </div>
 

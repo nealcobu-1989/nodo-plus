@@ -22,7 +22,7 @@ export default function Login() {
     
     // Redirigir según el rol si no hay ruta guardada
     if (userRole === 'ADMIN') {
-      return '/admin/institutions'
+      return '/admin/submissions'
     } else if (userRole === 'EDTECH') {
       return '/edtech/solutions'
     } else if (userRole === 'IE') {

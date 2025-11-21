@@ -319,6 +319,152 @@ export const adminController = {
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
+  },
+
+  // Gestión de Profile Submissions
+  async getAllSubmissions(req: AuthRequest, res: Response) {
+    try {
+      const submissions = await prisma.profileSubmission.findMany({
+        where: {
+          status: {
+            not: 'ARCHIVED'
+          }
+        },
+        include: {
+          user: {
+            select: {
+              email: true,
+              role: true
+            }
+          },
+          edtechCompany: {
+            select: {
+              name: true,
+              userId: true
+            }
+          },
+          institution: {
+            select: {
+              name: true,
+              userId: true
+            }
+          },
+          solution: {
+            select: {
+              name: true
+            }
+          }
+        },
+        orderBy: {
+          updatedAt: 'desc'
+        }
+      });
+
+      res.json(submissions);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async getSubmission(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const submission = await prisma.profileSubmission.findUnique({
+        where: { id },
+        include: {
+          user: {
+            select: {
+              email: true,
+              role: true
+            }
+          },
+          edtechCompany: {
+            select: {
+              name: true,
+              userId: true
+            }
+          },
+          institution: {
+            select: {
+              name: true,
+              userId: true
+            }
+          },
+          solution: {
+            select: {
+              name: true
+            }
+          },
+          attachments: true
+        }
+      });
+
+      if (!submission) {
+        return res.status(404).json({ error: 'Submission not found' });
+      }
+
+      res.json(submission);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async updateSubmission(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const { answers, consentData, sectionProgress, summarySnapshot, summaryText, status } = req.body;
+
+      const submission = await prisma.profileSubmission.findUnique({
+        where: { id }
+      });
+
+      if (!submission) {
+        return res.status(404).json({ error: 'Submission not found' });
+      }
+
+      const updated = await prisma.profileSubmission.update({
+        where: { id },
+        data: {
+          answers: answers ?? submission.answers,
+          consentData: consentData ?? submission.consentData,
+          sectionProgress: sectionProgress ?? submission.sectionProgress,
+          summarySnapshot: summarySnapshot ?? submission.summarySnapshot,
+          summaryText: summaryText ?? submission.summaryText,
+          status: status ?? submission.status,
+          updatedAt: new Date()
+        }
+      });
+
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async archiveSubmission(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const submission = await prisma.profileSubmission.findUnique({
+        where: { id }
+      });
+
+      if (!submission) {
+        return res.status(404).json({ error: 'Submission not found' });
+      }
+
+      const archived = await prisma.profileSubmission.update({
+        where: { id },
+        data: {
+          status: 'ARCHIVED'
+        }
+      });
+
+      res.json(archived);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
   }
 };
 
