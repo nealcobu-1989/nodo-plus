@@ -29,22 +29,15 @@ export default function Landing() {
             </Link>
             <Link
               to="/edtech/profile"
-              className="px-6 py-4 bg-yellow-100 text-yellow-800 border-2 border-yellow-600 rounded-lg hover:bg-yellow-200 transition-all font-semibold text-base flex items-center gap-2"
-              title="Explorar formulario de perfilamiento para pruebas"
+              className="w-full sm:w-auto px-8 py-4 bg-white text-green-800 border-2 border-green-700 rounded-lg hover:bg-green-50 transition-all font-semibold text-lg"
             >
-              🧪 Test Herramienta de Perfilamiento de EdTechs
+              Test Perfilamiento de EdTechs
             </Link>
             <Link
               to="/institution/questionnaire"
-              className="px-8 py-4 bg-white text-primary-700 border-2 border-primary-600 rounded-lg hover:bg-primary-50 transition-all font-semibold text-lg"
+              className="w-full sm:w-auto px-8 py-4 bg-white text-primary-700 border-2 border-primary-600 rounded-lg hover:bg-primary-50 transition-all font-semibold text-lg"
             >
               Test Radiografía de Colegios
-            </Link>
-            <Link
-              to="/login"
-              className="px-8 py-4 bg-navy-700 text-white border-2 border-navy-700 rounded-lg hover:bg-navy-800 transition-all font-semibold text-lg"
-            >
-              Login
             </Link>
           </div>
         </div>
