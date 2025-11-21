@@ -77,9 +77,23 @@ function getGlobalQuestionNumber(sectionId: string, questionIndex: number): numb
   let globalNumber = 0
   for (const section of institutionSurvey.sections) {
     if (section.id === sectionId) {
-      return globalNumber + questionIndex + 1
+      // Contar solo preguntas principales (no subpreguntas agrupadas)
+      // Una subpregunta tiene groupWith con exactamente 1 elemento
+      let mainQuestionsCount = 0
+      for (let i = 0; i <= questionIndex; i++) {
+        const q = section.questions[i]
+        // Si no tiene groupWith o tiene más de 1 elemento, es pregunta principal
+        if (!q.groupWith || q.groupWith.length !== 1) {
+          mainQuestionsCount++
+        }
+      }
+      return globalNumber + mainQuestionsCount
     }
-    globalNumber += section.questions.length
+    // Contar solo preguntas principales en secciones anteriores
+    const mainQuestionsInSection = section.questions.filter(
+      (q) => !q.groupWith || q.groupWith.length !== 1
+    ).length
+    globalNumber += mainQuestionsInSection
   }
   return globalNumber + questionIndex + 1
 }
@@ -999,7 +1013,7 @@ export default function Questionnaire() {
     )
   }
 
-  function renderQuestion(section: SurveySection, question: Question, index: number) {
+  function renderQuestion(section: SurveySection, question: Question, index: number, isSubQuestion?: boolean, subQuestionLetter?: string) {
     const error = errors[question.id]
     const hasError = !!error
     const answer = answers[question.id]
@@ -1011,11 +1025,15 @@ export default function Questionnaire() {
     const questionAttachments = attachments.filter((attachment) => attachment.questionId === question.id)
 
     const globalQuestionNumber = getGlobalQuestionNumber(section.id, index)
+    const questionNumberDisplay = isSubQuestion && subQuestionLetter 
+      ? `${globalQuestionNumber}${subQuestionLetter}`
+      : `${globalQuestionNumber}`
+    
     const label = (
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-lg font-semibold text-navy-800">
-            <span className="text-primary-600 font-semibold">{globalQuestionNumber}.</span>{' '}
+            <span className="text-primary-600 font-semibold">{questionNumberDisplay}.</span>{' '}
             {question.prompt}
             {question.required && <span className="text-primary-600 font-semibold ml-1">*</span>}
           </h3>
@@ -1211,55 +1229,49 @@ export default function Questionnaire() {
   }
 
   function renderSection(section: SurveySection) {
-    // Agrupar preguntas que tienen groupWith
-    // Identificar pregunta principal: la que tiene más referencias en groupWith
-    const processedQuestions: Array<Question | Question[]> = []
+    // Procesar preguntas manteniendo el orden original del array
+    // pero agrupando visualmente las que tienen groupWith
+    const processedQuestions: Array<{ question: Question; index: number } | { questions: Question[]; startIndex: number }> = []
     const groupedIds = new Set<string>()
     
-    // Primero identificar las preguntas principales (las que agrupan a otras)
-    const mainGroupQuestions = section.questions.filter((q) => 
-      q.groupWith && q.groupWith.length > 1 && isQuestionVisible(q, answers)
-    )
-    
-    // Procesar grupos principales primero
-    mainGroupQuestions.forEach((mainQuestion) => {
-      if (groupedIds.has(mainQuestion.id)) return
-      
-      const groupQuestions = [mainQuestion]
-      groupedIds.add(mainQuestion.id)
-      
-      // Encontrar todas las subpreguntas del grupo
-      mainQuestion.groupWith!.forEach((groupId) => {
-        const groupQuestion = section.questions.find((q) => q.id === groupId)
-        if (groupQuestion && !groupedIds.has(groupQuestion.id) && isQuestionVisible(groupQuestion, answers)) {
-          groupQuestions.push(groupQuestion)
-          groupedIds.add(groupQuestion.id)
-        }
-      })
-      
-      if (groupQuestions.length > 1) {
-        processedQuestions.push(groupQuestions)
-      } else {
-        processedQuestions.push(mainQuestion)
-      }
-    })
-    
-    // Procesar preguntas no agrupadas
-    section.questions.forEach((question) => {
+    // Iterar sobre las preguntas en orden original
+    section.questions.forEach((question, originalIndex) => {
+      // Saltar si no es visible o ya fue procesada
       if (!isQuestionVisible(question, answers) || groupedIds.has(question.id)) {
         return
       }
       
-      // Si tiene groupWith pero solo con 1 ID, es una subpregunta que ya fue procesada
-      if (question.groupWith && question.groupWith.length === 1) {
-        // Ya debería estar procesada, pero por si acaso la agregamos individualmente
+      // Si es una pregunta principal (tiene groupWith con múltiples IDs)
+      if (question.groupWith && question.groupWith.length > 1) {
+        const groupQuestions: Question[] = [question]
+        groupedIds.add(question.id)
+        
+        // Encontrar todas las subpreguntas del grupo en orden
+        question.groupWith.forEach((groupId) => {
+          const groupQuestion = section.questions.find((q) => q.id === groupId)
+          if (groupQuestion && !groupedIds.has(groupQuestion.id) && isQuestionVisible(groupQuestion, answers)) {
+            groupQuestions.push(groupQuestion)
+            groupedIds.add(groupQuestion.id)
+          }
+        })
+        
+        if (groupQuestions.length > 1) {
+          processedQuestions.push({ questions: groupQuestions, startIndex: originalIndex })
+        } else {
+          processedQuestions.push({ question, index: originalIndex })
+        }
+      } 
+      // Si es una subpregunta (tiene groupWith con 1 ID), ya fue procesada arriba
+      else if (question.groupWith && question.groupWith.length === 1) {
+        // Ya debería estar procesada, pero si no, la agregamos individualmente
         if (!groupedIds.has(question.id)) {
-          processedQuestions.push(question)
+          processedQuestions.push({ question, index: originalIndex })
           groupedIds.add(question.id)
         }
-      } else if (!question.groupWith || question.groupWith.length === 0) {
-        // Pregunta normal, no agrupada
-        processedQuestions.push(question)
+      } 
+      // Pregunta normal, no agrupada
+      else {
+        processedQuestions.push({ question, index: originalIndex })
         groupedIds.add(question.id)
       }
     })
@@ -1273,28 +1285,27 @@ export default function Questionnaire() {
           )}
         </div>
         <div className="space-y-6">
-          {processedQuestions.map((item, index) => {
-            if (Array.isArray(item)) {
+          {processedQuestions.map((item) => {
+            if ('questions' in item) {
               // Renderizar grupo de preguntas
-              const mainQuestion = item[0]
-              const subQuestions = item.slice(1)
-              const originalIndex = section.questions.findIndex((q) => q.id === mainQuestion.id)
+              const mainQuestion = item.questions[0]
+              const subQuestions = item.questions.slice(1)
               
               return (
                 <div key={mainQuestion.id} className="space-y-4 border-2 border-primary-200 rounded-2xl p-6 bg-primary-50/30">
-                  {renderQuestion(section, mainQuestion, originalIndex >= 0 ? originalIndex : index)}
+                  {renderQuestion(section, mainQuestion, item.startIndex)}
                   <div className="ml-8 space-y-4 border-l-2 border-primary-300 pl-6">
                     {subQuestions.map((subQ, subIndex) => {
                       const subOriginalIndex = section.questions.findIndex((q) => q.id === subQ.id)
-                      return renderQuestion(section, subQ, subOriginalIndex >= 0 ? subOriginalIndex : index + subIndex + 1)
+                      const subQuestionLetter = String.fromCharCode(97 + subIndex) // a, b, c, etc.
+                      return renderQuestion(section, subQ, item.startIndex, true, subQuestionLetter)
                     })}
                   </div>
                 </div>
               )
             } else {
               // Renderizar pregunta individual
-              const originalIndex = section.questions.findIndex((q) => q.id === item.id)
-              return renderQuestion(section, item, originalIndex >= 0 ? originalIndex : index)
+              return renderQuestion(section, item.question, item.index)
             }
           })}
         </div>

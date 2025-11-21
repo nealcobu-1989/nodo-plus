@@ -20,6 +20,10 @@
   ],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=20.0.0 <21.0.0",
+    "npm": ">=10.0.0"
+  },
   "dependencies": {
     "@azure/msal-node": "^3.8.1",
     "@prisma/client": "^5.7.1",

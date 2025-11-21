@@ -43,7 +43,16 @@ function App() {
           {/* Rutas públicas */}
           <Route path="login" element={<Login />} />
           <Route path="catalog" element={<Catalog />} />
-          <Route path="institution/questionnaire" element={<InstitutionQuestionnaire />} />
+          
+          {/* Rutas protegidas IE */}
+          <Route 
+            path="institution/questionnaire" 
+            element={
+              <ProtectedRoute requiredRole={['IE', 'ADMIN']}>
+                <InstitutionQuestionnaire />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* Rutas protegidas EdTech */}
           <Route 
