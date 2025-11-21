@@ -62,7 +62,7 @@ type AttachmentRecord = {
 }
 
 const steps = [
-  { id: 'intro', title: 'IntroducciÃ³n' },
+  { id: 'intro', title: 'Introducción' },
   ...institutionSurvey.sections.map((section) => ({
     id: section.id,
     title: section.title,
@@ -161,7 +161,7 @@ function buildSummarySnapshot(
 
 function buildSummaryText(snapshot: SummarySnapshot, consent: ConsentState): string {
   const consentLines = institutionSurvey.intro.consent.map((item) => {
-    const value = consent[item.id] ? 'SÃ­' : 'No'
+    const value = consent[item.id] ? 'Sí' : 'No'
     return `- ${item.label}: ${value}`
   })
 
@@ -500,7 +500,7 @@ export default function Questionnaire() {
       }
     } catch (error) {
       console.error('Error saving profile submission', error)
-      setServerError('No se pudo guardar el progreso. Verifica tu conexiÃ³n e intÃ©ntalo nuevamente.')
+      setServerError('No se pudo guardar el progreso. Verifica tu conexión e inténtalo nuevamente.')
       throw error
     } finally {
       setSaving(false)
@@ -731,7 +731,7 @@ export default function Questionnaire() {
       await saveSubmission({ answersOverride: nextAnswers })
     } catch (error) {
       console.error('Error uploading file', error)
-      setServerError('No se pudo cargar el archivo. IntÃ©ntalo nuevamente.')
+      setServerError('No se pudo cargar el archivo. Inténtalo nuevamente.')
     } finally {
       setUploadingQuestionId(null)
     }
@@ -762,7 +762,7 @@ export default function Questionnaire() {
       await saveSubmission({ answersOverride: nextAnswers })
     } catch (error) {
       console.error('Error deleting attachment', error)
-      setServerError('No se pudo eliminar el archivo. IntÃ©ntalo nuevamente.')
+      setServerError('No se pudo eliminar el archivo. Inténtalo nuevamente.')
     }
   }
 
@@ -786,7 +786,7 @@ export default function Questionnaire() {
       }
     } catch (error) {
       console.error('Error getting attachment URL', error)
-      setServerError('No se pudo obtener el archivo. IntÃ©ntalo nuevamente.')
+      setServerError('No se pudo obtener el archivo. Inténtalo nuevamente.')
     }
   }
 
@@ -829,7 +829,7 @@ export default function Questionnaire() {
           if (question.required && !value.trim()) {
             sectionErrors[question.id] = 'Este campo es obligatorio.'
           } else if (question.wordLimit && wordCount(value) > question.wordLimit) {
-            sectionErrors[question.id] = `MÃ¡ximo ${question.wordLimit} palabras.`
+            sectionErrors[question.id] = `Máximo ${question.wordLimit} palabras.`
           }
           break
         }
@@ -845,7 +845,7 @@ export default function Questionnaire() {
               // eslint-disable-next-line no-new
               new URL(candidate)
             } catch {
-              sectionErrors[question.id] = 'Ingresa una URL vÃ¡lida.'
+              sectionErrors[question.id] = 'Ingresa una URL válida.'
             }
           }
           break
@@ -853,13 +853,13 @@ export default function Questionnaire() {
         case 'single_choice': {
           const choice = answer as SingleChoiceAnswer | undefined
           if (question.required && (!choice || !choice.value)) {
-            sectionErrors[question.id] = 'Selecciona una opciÃ³n.'
+            sectionErrors[question.id] = 'Selecciona una opción.'
           } else if (
             choice?.value === 'other' &&
             question.options.some((option) => option.value === 'other' && option.allowFreeText) &&
             !choice.otherText?.trim()
           ) {
-            sectionErrors[question.id] = 'Describe la opciÃ³n "Otro".'
+            sectionErrors[question.id] = 'Describe la opción "Otro".'
           }
           break
         }
@@ -867,7 +867,7 @@ export default function Questionnaire() {
           const multi = answer as MultiChoiceAnswer | undefined
           const selectionCount = multi?.values?.length ?? 0
           if (question.required && selectionCount === 0) {
-            sectionErrors[question.id] = 'Selecciona al menos una opciÃ³n.'
+            sectionErrors[question.id] = 'Selecciona al menos una opción.'
           } else if (multi && multi.values.includes('none') && multi.values.length > 1) {
             sectionErrors[question.id] = 'No puedes seleccionar "Ninguno" junto con otras opciones.'
           } else if (
@@ -875,7 +875,7 @@ export default function Questionnaire() {
             question.options.some((option) => option.value === 'other' && option.allowFreeText) &&
             !multi.otherText?.trim()
           ) {
-            sectionErrors[question.id] = 'Describe la opciÃ³n "Otro".'
+            sectionErrors[question.id] = 'Describe la opción "Otro".'
           }
           break
         }
@@ -1114,7 +1114,7 @@ export default function Questionnaire() {
                         className="mt-2 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                         value={(answer as SingleChoiceAnswer | undefined)?.otherText ?? ''}
                         onChange={(event) => handleSingleOtherChange(question, event.target.value)}
-                        placeholder="Especifica la opciÃ³n"
+                        placeholder="Especifica la opción"
                       />
                     )}
                   </div>
@@ -1150,7 +1150,7 @@ export default function Questionnaire() {
                         className="mt-2 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                         value={(answer as MultiChoiceAnswer | undefined)?.otherText ?? ''}
                         onChange={(event) => handleMultiOtherChange(question, event.target.value)}
-                        placeholder="Especifica la opciÃ³n"
+                        placeholder="Especifica la opción"
                       />
                     )}
                   </div>
@@ -1169,7 +1169,7 @@ export default function Questionnaire() {
               className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-primary-600 file:px-4 file:py-2 file:text-white hover:file:bg-primary-700"
             />
             <p className="text-sm text-gray-500">
-              Los archivos se almacenarÃ¡n de forma segura. PodrÃ¡s reemplazarlos despuÃ©s.
+              Los archivos se almacenarán de forma segura. Podrás reemplazarlos después.
             </p>
             {uploadingQuestionId === question.id && (
               <div className="flex items-center gap-2 text-sm text-primary-600">
@@ -1339,10 +1339,10 @@ export default function Questionnaire() {
               </div>
               <div>
                 <h2 className="text-2xl font-semibold text-navy-800">
-                  Verifica tu informaciÃ³n antes de enviar
+                  Verifica tu información antes de enviar
                 </h2>
                 <p className="text-gray-600 mt-2">
-                  Revisa todas tus respuestas a continuaciÃ³n. AsegÃºrate de que toda la informaciÃ³n sea correcta y fiel a la realidad. Puedes regresar a secciones anteriores para editar cualquier respuesta antes de enviar.
+                  Revisa todas tus respuestas a continuación. Asegúrate de que toda la información sea correcta y fiel a la realidad. Puedes regresar a secciones anteriores para editar cualquier respuesta antes de enviar.
                 </p>
               </div>
             </div>
@@ -1356,7 +1356,7 @@ export default function Questionnaire() {
               <div key={item.id} className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
                 <span className="text-gray-700">{item.label}</span>
                 <span className={`font-semibold ${consent[item.id] ? 'text-primary-600' : 'text-gray-400'}`}>
-                  {consent[item.id] ? 'SÃ­' : 'No'}
+                  {consent[item.id] ? 'Sí' : 'No'}
                 </span>
               </div>
             ))}
@@ -1377,7 +1377,7 @@ export default function Questionnaire() {
                 onClick={() => setCurrentStepIndex(sectionIndex + 1)}
                 className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 text-sm font-medium"
               >
-                Editar secciÃ³n
+                Editar sección
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
@@ -1519,7 +1519,7 @@ export default function Questionnaire() {
           >
             <h3 className="text-xl font-semibold text-navy-800 mb-2">Modificar formulario</h3>
             <p className="text-gray-600">
-              Realiza cambios en tu formulario. Tus respuestas anteriores se mantendrÃ¡n y podrÃ¡s editarlas.
+              Realiza cambios en tu formulario. Tus respuestas anteriores se mantendrán y podrás editarlas.
             </p>
           </button>
         </div>
