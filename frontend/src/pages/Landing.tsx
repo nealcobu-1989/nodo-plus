@@ -35,10 +35,10 @@ export default function Landing() {
               🧪 Test Herramienta de Perfilamiento de EdTechs
             </Link>
             <Link
-              to="/edtech/profile"
+              to="/institution/questionnaire"
               className="px-8 py-4 bg-white text-primary-700 border-2 border-primary-600 rounded-lg hover:bg-primary-50 transition-all font-semibold text-lg"
             >
-              Soy EdTech
+              Test Radiografía de Colegios
             </Link>
             <Link
               to="/login"

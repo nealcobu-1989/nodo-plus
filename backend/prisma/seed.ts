@@ -901,6 +901,59 @@ async function main() {
   }
   console.log(`✅ Created ${institutionsData.length} educational institutions`)
 
+  // Crear 10 cuentas de colegios de prueba para la encuesta
+  const testInstitutionsData = []
+  for (let i = 1; i <= 10; i++) {
+    testInstitutionsData.push({
+      email: `testcolegio${i}@nodo-plus.com`,
+      name: `Colegio de Prueba ${i}`,
+      type: i % 2 === 0 ? 'pública' : 'privada',
+      location: 'Bogotá D.C.',
+      rural: i > 7,
+      contactEmail: `testcolegio${i}@nodo-plus.com`,
+    })
+  }
+
+  for (const instData of testInstitutionsData) {
+    const userPassword = await bcrypt.hash('pass', 10)
+    const user = await prisma.user.upsert({
+      where: { email: instData.email },
+      update: {
+        password: userPassword,
+        role: 'IE'
+      },
+      create: {
+        email: instData.email,
+        password: userPassword,
+        role: 'IE'
+      }
+    })
+
+    const existingInstitution = await prisma.institution.findUnique({
+      where: { userId: user.id }
+    })
+
+    if (!existingInstitution) {
+      await prisma.institution.create({
+        data: {
+          userId: user.id,
+          name: instData.name,
+          type: instData.type,
+          location: instData.location,
+          rural: instData.rural,
+          status: 'APPROVED',
+          approvedAt: new Date(),
+          characterizationData: {
+            contactEmail: instData.contactEmail,
+            registeredDate: new Date().toISOString(),
+            interest: 'Prueba de radiografía de colegios'
+          }
+        }
+      })
+    }
+  }
+  console.log(`✅ Created ${testInstitutionsData.length} test institutions for questionnaire`)
+
   // Crear usuarios de prueba (solo acceso EDTECH)
   const testerPassword = await bcrypt.hash('pass', 10)
   const testerCount = 10

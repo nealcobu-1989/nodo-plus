@@ -6,6 +6,7 @@ import Login from './pages/Login'
 import EdTechDashboard from './pages/edtech/Dashboard'
 import AdminDashboard from './pages/admin/Dashboard'
 import Catalog from './pages/catalog/Catalog'
+import InstitutionQuestionnaire from './pages/institution/Questionnaire'
 
 // Componente para proteger rutas y guardar la ruta original
 function ProtectedRoute({ children, requiredRole }: { children: JSX.Element; requiredRole?: string | string[] }) {
@@ -42,6 +43,7 @@ function App() {
           {/* Rutas públicas */}
           <Route path="login" element={<Login />} />
           <Route path="catalog" element={<Catalog />} />
+          <Route path="institution/questionnaire" element={<InstitutionQuestionnaire />} />
           
           {/* Rutas protegidas EdTech */}
           <Route 
